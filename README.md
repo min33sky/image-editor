@@ -4,8 +4,9 @@ This is a simple image editor that allows you to edit images in a browser. It is
 
 ## Demo
 
-[Live Demo](http://)
+[Live Demo](https://sajin-editor.netlify.app/)
 
 ## Stacks
 
 - [React](https://reactjs.org/)
+- [Tailwind CSS](https://tailwindcss.com/)
