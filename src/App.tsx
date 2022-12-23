@@ -99,6 +99,30 @@ export default function App() {
   };
 
   /**
+   * 이미지 저장
+   */
+  const saveImage = () => {
+    if (!imageRef.current) return;
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = imageRef.current.naturalWidth;
+    canvas.height = imageRef.current.naturalHeight;
+
+    if (!ctx) return;
+
+    ctx.filter = `brightness(${filters.brightness}%) saturate(${filters.saturation}%) invert(${filters.inversion}%) grayscale(${filters.grayscale}%)`;
+    ctx.translate(canvas.width / 2, canvas.height / 2); // 중심점을 이미지의 중심으로 이동
+    if (rotate !== 0) ctx.rotate((rotate * Math.PI) / 180);
+    ctx.scale(flipHorizontal ? -1 : 1, flipVertical ? -1 : 1);
+    ctx.drawImage(imageRef.current, -canvas.width / 2, -canvas.height / 2); // 이미지를 중심점을 기준으로 그리기
+
+    const link = document.createElement('a');
+    link.download = 'image.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  };
+
+  /**
    * 필터 변경 시 이미지에 필터 적용
    */
   useEffect(() => {
@@ -251,7 +275,10 @@ export default function App() {
             >
               이미지 올리기
             </button>
-            <button className="w-full rounded-md border-2 bg-indigo-500 py-2 text-slate-100 transition hover:bg-indigo-600 sm:w-36">
+            <button
+              onClick={saveImage}
+              className="w-full rounded-md border-2 bg-indigo-500 py-2 text-slate-100 transition hover:bg-indigo-600 sm:w-36"
+            >
               저장
             </button>
           </div>
