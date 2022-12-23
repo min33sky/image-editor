@@ -10,3 +10,12 @@
       'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', sans-serif;
   }
 }
+
+@layer components {
+  /* 필터 버튼 */
+
+  /* 회전 버튼 */
+  .rotate-btn {
+    @apply flex flex-1 justify-center border-2 py-2 transition hover:bg-slate-200;
+  }
+}
