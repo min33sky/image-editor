@@ -8,8 +8,46 @@ import {
 import React, { useEffect, useRef, useState } from 'react';
 
 export default function App() {
+  const [currentFilter, setCurrentFilter] = useState<FilterType>('brightness');
+  const [filters, setFilters] = useState({
+    brightness: 100,
+    saturation: 100,
+    inversion: 0,
+    grayscale: 0,
+  });
+  const [rotate, setRotate] = useState(0);
+  const [flipHorizontal, setFlipHorizontal] = useState(false);
+  const [flipVertical, setFlipVertical] = useState(false);
   const [imageUrl, setImageUrl] = useState(imagePlaceholder);
-  const fileRef = useRef<HTMLInputElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null); // 파일 업로드를 위한 ref
+  const imageRef = useRef<HTMLImageElement>(null); // 이미지를 위한 ref
+
+  /**
+   * 필터 선택
+   * @param filter 필터 종류
+   */
+  const handleActiveFilter = (filter: FilterType) => {
+    setCurrentFilter(filter);
+  };
+
+  /**
+   * 필터 값 변경 핸들러
+   */
+  const handleChangeFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFilters({
+      ...filters,
+      [currentFilter]: Number(e.target.value),
+    });
+  };
+
+  /**
+   * 이미지에 필터 적용
+   */
+  const applyFilter = () => {
+    if (!imageRef.current) return;
+    console.log('imageRef.current', imageRef.current);
+    imageRef.current.style.filter = `brightness(${filters.brightness}%) saturate(${filters.saturation}%) invert(${filters.inversion}%) grayscale(${filters.grayscale}%)`;
+  };
 
   /**
    * 이미지 업로드 버튼 클릭 핸들러
@@ -28,6 +66,25 @@ export default function App() {
   };
 
   /**
+   * 필터 초기화
+   */
+  const resetFilters = () => {
+    setFilters({
+      brightness: 100,
+      saturation: 100,
+      inversion: 0,
+      grayscale: 0,
+    });
+  };
+
+  /**
+   * 필터 변경 시 이미지에 필터 적용
+   */
+  useEffect(() => {
+    applyFilter();
+  }, [filters]);
+
+  /**
    * 메모리 최적화
    */
   useEffect(() => {
@@ -44,30 +101,67 @@ export default function App() {
         </h1>
 
         <section className="flex flex-col-reverse space-y-3 sm:flex-row sm:justify-between sm:space-y-0 sm:space-x-2">
-          <div className="space-y-2 rounded-sm border-2 px-3 py-2 sm:w-1/2">
+          <div className="space-y-3 rounded-sm border-2 px-3 py-2 sm:w-1/2">
             <h2>필터</h2>
 
             <div className="grid grid-cols-2 gap-2">
-              <button className="border-2 py-2 transition hover:bg-slate-200">
-                Brightness
+              <button
+                onClick={() => handleActiveFilter('brightness')}
+                className={`border-2 py-2 transition  ${
+                  currentFilter === 'brightness'
+                    ? 'text-slate-10 bg-indigo-500 text-slate-100'
+                    : 'hover:bg-slate-200'
+                }`}
+              >
+                명도
               </button>
-              <button className="border-2 py-2 transition hover:bg-slate-200">
-                Saturation
+              <button
+                onClick={() => handleActiveFilter('saturation')}
+                className={`border-2 py-2 transition  ${
+                  currentFilter === 'saturation'
+                    ? 'text-slate-10 bg-indigo-500 text-slate-100'
+                    : 'hover:bg-slate-200'
+                }`}
+              >
+                채도
               </button>
-              <button className="border-2 py-2 transition hover:bg-slate-200">
-                Inversion
+              <button
+                onClick={() => handleActiveFilter('inversion')}
+                className={`border-2 py-2 transition  ${
+                  currentFilter === 'inversion'
+                    ? 'text-slate-10 bg-indigo-500 text-slate-100'
+                    : 'hover:bg-slate-200'
+                }`}
+              >
+                반전
               </button>
-              <button className="border-2 py-2 transition hover:bg-slate-200">
-                Grayscale
+              <button
+                onClick={() => handleActiveFilter('grayscale')}
+                className={`border-2 py-2 transition  ${
+                  currentFilter === 'grayscale'
+                    ? 'text-slate-10 bg-indigo-500 text-slate-100'
+                    : 'hover:bg-slate-200'
+                }`}
+              >
+                회색조
               </button>
             </div>
 
-            <div className="space-y-2">
+            <div aria-label="필터 게이지" className="space-y-2">
               <div className="flex justify-between">
-                <p>Brightness</p>
-                <p>100%</p>
+                <p className="first-letter:uppercase">
+                  {FilterKoreanName[currentFilter]}
+                </p>
+                <p className="">{filters[currentFilter]}%</p>
               </div>
-              <input type="range" min={0} max={200} className="w-full " />
+              <input
+                type="range"
+                onChange={handleChangeFilter}
+                min={0}
+                max={filterMaxValueMap[currentFilter]}
+                value={filters[currentFilter]}
+                className="w-full "
+              />
             </div>
 
             <div>
@@ -100,12 +194,20 @@ export default function App() {
               accept="imaage/*"
               hidden
             />
-            <img src={imageUrl} alt="preview-img" className="h-full" />
+            <img
+              ref={imageRef}
+              src={imageUrl}
+              alt="preview-img"
+              className="h-full"
+            />
           </div>
         </section>
 
         <footer className="flex flex-col space-y-2 sm:flex-row sm:justify-between">
-          <button className="w-full rounded-md border-2 py-2 text-slate-500 transition hover:bg-slate-200 sm:w-36">
+          <button
+            onClick={resetFilters}
+            className="w-full rounded-md border-2 py-2 text-slate-500 transition hover:bg-slate-200 sm:w-36"
+          >
             필터 초기화
           </button>
 
@@ -124,4 +226,20 @@ export default function App() {
       </div>
     </div>
   );
+}
+
+type FilterType = 'brightness' | 'saturation' | 'inversion' | 'grayscale';
+
+const filterMaxValueMap = {
+  brightness: 200,
+  saturation: 200,
+  inversion: 100,
+  grayscale: 100,
+} as const;
+
+enum FilterKoreanName {
+  brightness = '명도',
+  saturation = '채도',
+  inversion = '반전',
+  grayscale = '회색조',
 }
