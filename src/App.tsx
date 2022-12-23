@@ -41,11 +41,29 @@ export default function App() {
   };
 
   /**
+   * 회전 및 뒤집기 핸들러
+   * @param direction 회전 방향
+   */
+  const handleRotate = (direction: rotateType) => {
+    if (direction === 'left') {
+      setRotate((prev) => prev - 90);
+    } else if (direction === 'right') {
+      setRotate((prev) => prev + 90);
+    } else if (direction === 'horizontal') {
+      setFlipHorizontal((prev) => !prev);
+    } else if (direction === 'vertical') {
+      setFlipVertical((prev) => !prev);
+    }
+  };
+
+  /**
    * 이미지에 필터 적용
    */
   const applyFilter = () => {
     if (!imageRef.current) return;
-    console.log('imageRef.current', imageRef.current);
+    imageRef.current.style.transform = `rotate(${rotate}deg) ${
+      flipHorizontal ? 'scaleX(-1)' : 'scaleX(1)'
+    } ${flipVertical ? 'scaleY(-1)' : 'scaleY(1)'}`;
     imageRef.current.style.filter = `brightness(${filters.brightness}%) saturate(${filters.saturation}%) invert(${filters.inversion}%) grayscale(${filters.grayscale}%)`;
   };
 
@@ -75,6 +93,9 @@ export default function App() {
       inversion: 0,
       grayscale: 0,
     });
+    setRotate(0);
+    setFlipHorizontal(false);
+    setFlipVertical(false);
   };
 
   /**
@@ -82,7 +103,7 @@ export default function App() {
    */
   useEffect(() => {
     applyFilter();
-  }, [filters]);
+  }, [filters, rotate, flipHorizontal, flipVertical]);
 
   /**
    * 메모리 최적화
@@ -167,16 +188,28 @@ export default function App() {
             <div>
               <p>회전</p>
               <div className="flex space-x-2">
-                <button className="rotate-btn">
+                <button
+                  onClick={() => handleRotate('left')}
+                  className="rotate-btn"
+                >
                   <ArrowUturnLeftIcon className="h-5 w-5" />
                 </button>
-                <button className="rotate-btn">
+                <button
+                  onClick={() => handleRotate('right')}
+                  className="rotate-btn"
+                >
                   <ArrowUturnRightIcon className="h-5 w-5" />
                 </button>
-                <button className="rotate-btn">
+                <button
+                  onClick={() => handleRotate('horizontal')}
+                  className="rotate-btn"
+                >
                   <ArrowsRightLeftIcon className="h-5 w-5" />
                 </button>
-                <button className="rotate-btn">
+                <button
+                  onClick={() => handleRotate('vertical')}
+                  className="rotate-btn"
+                >
                   <ArrowsUpDownIcon className="h-5 w-5" />
                 </button>
               </div>
@@ -229,6 +262,7 @@ export default function App() {
 }
 
 type FilterType = 'brightness' | 'saturation' | 'inversion' | 'grayscale';
+type rotateType = 'left' | 'right' | 'horizontal' | 'vertical';
 
 const filterMaxValueMap = {
   brightness: 200,
